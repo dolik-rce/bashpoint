@@ -331,6 +331,9 @@ run() {
         CUR=$((CUR>LAST?LAST:(CUR<0?0:CUR)))
         display
     done
+    # unfortunately, there is no reliable way to know the state of the title
+    # before the presentation started, so we just set it to something reasonable
+    echo -e -n "\e]2;$USER@$(hostname):$PWD\007"
     tput clear
 }
 
@@ -338,8 +341,7 @@ load() {
     local FILES=()
     while [ $# -gt 0 ]; do
         if [ -d "$1" ]; then
-            read -r -a ADD <(find "$1" -type f | sort)
-            FILES+=("${ADD[@]}")
+            readarray -t FILES < <(find "$1" -type f | sort)
         elif [ -e "$1" ]; then
             FILES+=("$1")
         else

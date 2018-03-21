@@ -1,7 +1,7 @@
 Bashpoint
 =========
 
-Bashpoint is simple presentation tool for text interface.
+Bashpoint is simple but capable presentation tool with textual interface.
 
 It runs in terminal or in console and is driven by keyboard only.
 
@@ -14,7 +14,7 @@ To see what bashpoint can do, just run
 
         ./bashpoint.sh examples/demo.slides
 
-In case you are to lazy to clone this repo, here is a picture:
+In case you are too lazy to clone this repo, here is a picture:
 
 ![Demo](bashpoint.gif)
 
@@ -22,13 +22,16 @@ Usage:
 ------
 
 Run a single-file presentation:
-
-        ./bashpoint.sh [--debug] my_file
+```bash
+./bashpoint.sh [--debug] my_file
+```
 
 Run a multi-file presentation:
+```bash
+./bashpoint.sh [--debug] my_file_1 my_file_2 ...
+```
 
-        ./bashpoint.sh [--debug] my_file_1 my_file_2, ...
-
-Run a presentation suing all files in directory (or multiple directories):
-
-        ./bashpoint.sh [--debug] my_directory ...
+Run a presentation using all files in directory (or multiple directories):
+```bash
+./bashpoint.sh [--debug] my_directory ...
+```
