@@ -1,0 +1,419 @@
+<lfooter Jan Dolinár, Seznam.cz a.s.>
+<rfooter 22.3.2018, Praha>
+<run measure () { /usr/bin/time -f"%E (user: %U, system: %S)" bash -c 'for ((i=0; i<'"$1"'; i++)); do '"$2"'; done'; }>
+<slide center center middle Vítejte!>
+Vítejte!
+<slide center center middle Bash>
+
+<fg 0;255;0>▀█████████▄     ▄████████    ▄████████    ▄█    █▄   </fg>
+<fg 0;231;0>  ███    ███   ███    ███   ███    ███   ███    ███  </fg>
+<fg 0;207;0>  ███    ███   ███    ███   ███    █▀    ███    ███  </fg>
+<fg 0;183;0> ▄███▄▄▄██▀    ███    ███   ███         ▄███▄▄▄▄███▄▄</fg>
+<fg 0;159;0>▀▀███▀▀▀██▄  ▀███████████ ▀███████████ ▀▀███▀▀▀▀███▀ </fg>
+<fg 0;135;0>  ███    ██▄   ███    ███          ███   ███    ███  </fg>
+<fg 0;111;0>  ███    ███   ███    ███    ▄█    ███   ███    ███  </fg>
+<fg 00;87;0>▄█████████▀    ███    █▀   ▄████████▀    ███    █▀   </fg>
+
+<fg green>RULEZ!</fg>
+
+
+Aneb
+
+Rychlé představení méně známých zákoutí bashe,
+především těch užitečných.
+
+<slide left center middle Stringy>
+<b><u><title></u></b>
+
+    * <b>"</b>single quotes<b>"</b>
+
+    * <b>'</b>double quotes<b>'</b>
+
+    * <b>$'</b>ANSI-C quoting<b>'</b>
+
+    * <b>$"</b>Tohle je chyták<b>"</b>
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd echo 'tohle je\n"$PWD"'>
+    <pause><d><ans></d>
+
+    $ <cmd echo "tohle je\n\"$PWD\"">
+    <pause><d><ans></d>
+
+    $ <cmd echo $'tohle je\n"$PWD"'>
+    <pause><d><ans></d>
+
+    $ <cmd export TEXTDOMAIN=bash && unset LANGUAGE>
+    $ <cmd echo $"octal number">
+    <pause><d><ans></d>
+
+<slide left center middle Brace expansion>
+<b><u><title></u></b>
+
+    * Nejčastěji se použije pro hromadné operace
+      nad podobnými entitami (adresáře, servery, ...)
+
+    * Formát <b>{a,b,...}</b> nebo <b>{from..to[..incr]}</b>
+
+    * <i>From</i> a <i>to</i> mohou být číslo nebo znak
+
+    * Nefunguje ve stringu
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd echo {a,b}{1..5}>
+    <pause><d><ans></d>
+
+    $ <cmd echo {01..10}>
+    <pause><d><ans></d>
+
+    $ <cmd echo {a..f} {g..z..3}>
+    <pause><d><ans></d>
+
+    $ <cmd rm /dir/{a..b}/{1,2}>
+    <pause><d><ans></d>
+
+<slide left center middle Pole>
+<b><u><title></u></b>
+
+    * Indexované (od nuly), seřazené
+
+    * Hodnoty v závorkách, oddělené bílýmy znaky
+
+    * Pole klíčů <b>${!ARRAY[@]}</b>
+
+    * <fg red>POZOR:</fg> Mohou mít díry
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd declare -ga X>
+    $ <cmd X=(A B 3)>
+    $ <cmd X[7]=2>
+    $ <cmd X+=(4 E)>
+    $ <cmd for V in "${X[@]}"; do echo -n "$V "; done>
+    <pause><d><ans></d>
+
+    $ <cmd echo "${!X[@]}">
+    <pause><d><ans></d>
+
+    $ <cmd for K in ${!X[@]}; do echo -n "$K:${X[$K]} "; done>
+    <pause><d><ans></d>
+
+<slide left center middle Asociativní pole>
+<b><u><title></u></b>
+
+    * Indexované stringem
+
+    * Klíče a hodnoty v závorkách, oddělené bílýmy znaky
+
+    * Pole klíčů <b>${!ARRAY[@]}</b>
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd declare -gA Y>
+    $ <cmd Y=([" "]=1 [42]=b ['C']="c")>
+    $ <cmd Y+=([C]="2" ["F"]="f")>
+    $ <cmd Y["D"]="d">
+    $ <cmd for V in "${Y[@]}"; do echo -n "$V "; done>
+    <pause><d><ans></d>
+
+    $ <cmd for K in "${!Y[@]}"; do echo -n "$K:${Y[$K]} "; done>
+    <pause><d><ans></d>
+
+<slide left center middle Command substitution>
+<b><u><title></u></b>
+
+    * Provede příkaz a vrátí jeho výstup
+
+    * <b>$(</b>cmd args ...<b>)</b>
+
+    * <b>`</b>cmd args ...<b>`</b> (zastaralé!)
+
+    * Může být i zanořené
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd X="$(file "$0")"; echo "$X">
+    <pause><d><ans></d>
+
+    $ <cmd X="`file "$0"`"; echo "$X">
+    <pause><d><ans></d>
+
+    $ <cmd X="$(du -h "$(pwd)/$0")"; echo "$X">
+    <pause><d><ans></d>
+
+<slide left center middle Parameter substitution - proměnné>
+<b><u><title></u></b>
+
+    * <b>${name}</b>: stejné jako $name
+    * <b>${name:=default}</b>: if $name then "$name" else name="default"
+    * <b>${name:-default}</b>: if "$name" = "" then "$name" else "default"
+    * <b>${name:+alt_val}</b>: if "$name" != "" then "alt_val" else ""
+    * <b>${name:?error}</b>: if "$name" then "$name" else echo >&2 "error" && exit 1
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd unset X; echo "${X:=batman}, X=$X">
+    <pause><d><ans></d>
+    $ <cmd unset X; echo "${X:-batman}, X=$X">
+    <pause><d><ans></d>
+    $ <cmd unset X; echo "${PWD:+batman}, ${X:+superman}">
+    <pause><d><ans></d>
+    $ <cmd unset X; ( echo "X=${X:?Není nastaveno}" ) || echo "exit=$?">
+    <pause><d><ans></d>
+
+<slide left center middle Parameter substitution - stringy>
+<b><u><title></u></b>
+
+    * <b>${#name}</b>: Délka stringu (funguje i jako délka pole ${#arr[@]})
+    * <b>${var:pos:len}</b>: Substring <i>&lt;pos,pos+len)</i>, délka je nepoviná
+    * <b>${var#pattern}</b>, <b>${var##pattern}</b>: Odstraní nejkratší/nejdelší prefix
+    * <b>${var%pattern}</b>, <b>${var%%pattern}</b>: Odstraní nejkratší/nejdelší suffix
+    * <b>${var/pattern/replace}</b>: Záměna prvního matche za "replace"
+    * <b>${var//pattern/replace}</b>: Záměna všech matchů za "replace"
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd F=banana.log.gz; echo "len=${#F}">
+    <pause><d><ans></d>
+    $ <cmd echo "${F:6}, ${F:6:4}, ${F::6}">
+    <pause><d><ans></d>
+    $ <cmd echo "${F#*.}, ${F##*.}">
+    <pause><d><ans></d>
+    $ <cmd echo "${F%.*}, ${F%%.*}">
+    <pause><d><ans></d>
+    $ <cmd echo "${F/na/NA}, ${F//na/NA}">
+    <pause><d><ans></d>
+
+
+<slide left center middle Přesměrování (redirection)>
+<b><u><title></u></b>
+
+    * Umožňuje práci s otevřenými soubory (včetně std{in,out,err})
+
+    * Buď per command, per blok
+      nebo pomocí exec pro zbytek skriptu
+
+    * Každý by měl znát:
+        ∙ Výstup: &gt;, &gt;&gt;, &&gt;, 2&gt;&1 a |
+        ∙ Vstup: &lt;, 2&gt;&1 a |
+
+    * Občas se hodí
+        ∙ Otevřít soubor: &lt;&gt;filename, N&lt;&gt;filename
+        ∙ Zavřít deskriptor: N&lt;&-, N&gt;&-
+
+    * Jde kombinovat více operací najednou
+
+  <pause><u><i>Příklad:</i></u>
+
+    $ <cmd echo 12345 &gt; /tmp/xyz>
+    $ <cmd exec 3&lt;&gt; /tmp/xyz>
+    $ <cmd read -n 2 &lt;&3>
+    $ <cmd echo -n "X" &gt;&3>
+    $ <cmd exec 3&gt;&->
+    $ <cmd cat /tmp/xyz>
+    <pause><d><ans></d>
+
+<slide left center middle Process substitution>
+<b><u><title></u></b>
+
+    * Provede příkaz a vrátí 'soubor',
+      z něhož lze přečíst jeho výstup
+
+    * <b>&lt;(</b>cmd args ...<b>)</b>
+
+    * Umožňuje předat výstup příkazu i programu,
+      který neumí číst stdin (např. diff)
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd echo <(true)>
+    <pause><d><ans></d>
+
+    $ <cmd cat <(echo "Hello world!")>
+    <pause><d><ans></d>
+
+    $ <cmd wdiff <(date -d'-1day') <(date)>
+    <pause><d><ans></d>
+
+<slide left center middle Here document>
+<b><u><title></u></b>
+
+    * Umožňuje snadno předat programu víceřádkový vstup
+
+    * Původně určeno pro předávání příkazů interaktivním programům
+
+    * Nejčastěji používáno s <i>cat</i> pro dynamické generování souborů
+
+    * Několik forem:
+        ∙ Základní &lt;&lt;EOF
+        ∙ Bez substitucí &lt;&lt;"EOF" nebo &lt;&lt;\EOF
+        ∙ &lt;&lt;-EOF (ignoruje úvodní taby)
+        ∙ Kombinace předchozích dvou
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ cat &lt;&lt;EOF
+      Home sweet $HOME!
+      EOF
+    <pause><d>Home sweet <env HOME>!</d>
+
+    $ wc &lt;&lt;-\EOF
+      	12345
+      	$HOME
+      	EOF
+    <pause><d>2 2 10</d>
+
+<slide left center middle Arithmetic expansion>
+<b><u><title></u></b>
+
+    * Celočíslená aritmetika
+
+    * Logické operace
+
+    * Formy: <b>$(( ... ))</b>, <b>(( ... ))</b>, <b>let ...</b>, <b>expr ...</b>
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd let X=(2+1)*6>
+    $ <cmd ((X += 2))>
+    $ <cmd (( X++ ))>
+    $ <cmd echo "$X">
+    <pause><d><ans></d>
+    $ <cmd expr $X % 4>
+    <pause><d><ans></d>
+    $ <cmd echo "$((X+$X))">
+    <pause><d><ans></d>
+    $ <cmd echo $((X &gt; 0 ? 1 : -1))>
+    <pause><d><ans></d>
+
+<slide left center middle Builtins>
+<b><u><title></u></b>
+
+    * Mnohem rychlejší než binárky
+
+    * Nespouštějí nový proces
+
+    * Používejte všude kde to jen jde
+
+  <pause><u><i>Ukázka:</i></u>
+
+    $ <cmd measure 1000 true>
+    <pause><d><ans></d>
+
+    $ <cmd measure 1000 /bin/true>
+    <pause><d><ans></d>
+
+<slide left center middle Efektivita>
+<b><u><title></u></b>
+
+    * Čím míň příkazů tím lépe
+        ∙ zbytečný cat
+        ∙ kombinace grep a sed
+        ∙ uvozovky šetří globy
+        ∙ redirect celého bloku šetří otevírání descriptorů
+
+    * Specializované nástroje jsou rychlejší než obecné
+        ∙ cut/tr/head &lt; sed/grep &lt; awk
+        ∙ dash &lt; bash
+
+  <pause><u><i>Ukázka:</i></u>
+
+    $ <cmd measure 100 'cat /etc/passwd | grep -q a'>
+    <pause><d><ans></d>
+    $ <cmd measure 100 'grep -q a /etc/passwd'>
+    <pause><d><ans></d>
+
+    $ <cmd measure 10000 'echo 1 &gt; /dev/null; echo 2 &gt; /dev/null; echo 3 &gt; /dev/null'>
+    <pause><d><ans></d>
+    $ <cmd measure 10000 '{ echo 1; echo 2; echo 3; } &gt; /dev/null'>
+    <pause><d><ans></d>
+
+    $ <cmd measure 500 "sed 's/b/x/g' &lt;&lt;&lt;"abc" &gt; /dev/null">
+    <pause><d><ans></d>
+    $ <cmd measure 500 "tr b x &lt;&lt;&lt;"abc" &gt; /dev/null">
+    <pause><d><ans></d>
+
+<slide left center middle Nastavení>
+<b><u><title></u></b>
+
+    * Spousta užitečných voleb lze zapnout příkazem <b>set</b>
+
+        ∙ <b>set -v</b>, <b>set -o verbose</b>
+            - vypisuje načítané příkazy
+        ∙ <b>set -x</b>, <b>set -o xtrace</b>
+            - trasuje prováděné příkazy
+        ∙ <b>set -e</b>, <b>set -o errexit</b>
+            - ukončí skript při první chybě
+        ∙ <b>set -u</b>, <b>set -o nounset</b>
+            - použití nedefinované proměné vyvolá chybu
+        ∙ <b>set -o pipefail</b>
+            - pipeline selže, pokud selže libovolný její krok
+
+    * Vypnout lze použitím <b>set +[pismeno]</b>, <b>set +o [jmeno]</b>
+
+  <pause><u><i>Příklady:</i></u>
+
+    $ <cmd set -x; echo $(ls $PWD | head -n 1); set +x>
+    <pause><d><ans></d>
+    $ <cmd set +o pipefail; false | true; echo $?; set -o pipefail>
+    <pause><d><ans></d>
+    $ <cmd set -o pipefail; false | true; echo $?;>
+    <pause><d><ans></d>
+
+<slide left center middle Užitečné nástroje>
+<b><u><title></u></b>
+
+    * <i>Checkbashisms</i>
+        ∙ kontroluje, jestli skript nepoužívá něco,
+          co by nebylo komapatibilní s jinýmy shelly
+        ∙ od vývojářu Debianu pro vývojáře Debianu
+        ∙ v balíčku devscripts
+
+    * <i>Shellcheck</i>
+        ∙ statická analýza skriptů
+        ∙ https://github.com/koalaman/shellcheck
+
+<slide left center middle Dokumentace>
+<b><u><title></u></b>
+
+    * Manual & Texinfo
+        ∙ man 1 bash
+        ∙ info bash
+
+    * Bash Reference Manual
+        ∙ https://www.gnu.org/software/bash/manual/bash.html
+
+    * Advanced Bash-Scripting Guide
+        ∙ http://www.tldp.org/LDP/abs/html/index.html
+
+    * Barvičky a formátování
+        ∙ https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+<slide left center middle That's all folks!>
+
+                        <fg 135;129;127>▄</fg><fg 86;71;64>▄</fg><fg 129;128;128><bg 30;28;28>▄</fg></bg><fg 128;126;127><bg 35;33;35>▄</fg></bg><fg 118;118;116><bg 37;36;37>▄</fg></bg><fg 126;126;124><bg 50;48;51>▄</fg></bg><fg 103;101;101><bg 51;49;53>▄</fg></bg><fg 74;72;71><bg 132;130;134>▄</fg></bg><fg 117;115;116><bg 242;241;243>▄</fg></bg><fg 163;161;164><bg 254;254;254>▄</fg></bg><fg 202;201;203><bg 218;216;214>▄</fg></bg><fg 179;178;177><bg 77;74;73>▄</fg></bg><fg 32;30;30>▄</fg><fg 45;40;38>▄</fg><fg 93;90;88>▄</fg>          <nop>
+                      <fg 112;110;110>▄</fg><fg 101;95;91><bg 75;53;44>▄</fg></bg><fg 106;65;42><bg 96;71;64>▄</fg></bg><fg 122;75;46><bg 45;28;22>▄</fg></bg><fg 62;42;32><bg 32;26;24>▄</fg></bg><fg 39;36;37><bg 59;52;49>▄</fg></bg><fg 140;121;112><bg 214;177;147>▄</fg></bg><fg 154;134;125><bg 208;183;161>▄</fg></bg><fg 97;93;94><bg 104;101;105>▄</fg></bg><fg 221;219;219><bg 239;238;238>▄</fg></bg><fg 254;254;254><bg 204;201;200>▄</fg></bg><fg 223;221;219><bg 122;111;105>▄</fg></bg><fg 125;122;121><bg 107;95;89>▄</fg></bg><fg 76;74;75><bg 78;75;76>▄</fg></bg><fg 46;44;45><bg 50;48;48>▄</fg></bg><fg 26;24;24><bg 35;33;34>▄</fg></bg><fg 45;43;43><bg 26;23;23>▄</fg></bg><fg 78;75;76><bg 58;55;56>▄</fg></bg><fg 72;70;69><bg 23;23;24>▄</fg></bg><fg 104;102;100><bg 6;7;6>▄</fg></bg><fg 132;130;129><bg 25;23;21>▄</fg></bg><fg 51;46;45>▄</fg><fg 89;86;85>▄</fg>    <nop>
+                      <fg 66;58;56><bg 39;34;33>▄</fg></bg><fg 103;81;67><bg 33;23;19>▄</fg></bg><fg 112;79;66><bg 131;92;75>▄</fg></bg><fg 60;41;36><bg 124;105;98>▄</fg></bg><fg 45;42;43><bg 93;66;61>▄</fg></bg><fg 73;68;70><bg 90;84;86>▄</fg></bg><fg 183;153;127><bg 68;61;56>▄</fg></bg><fg 79;71;65><bg 86;83;86>▄</fg></bg><fg 158;155;157><bg 201;199;201>▄</fg></bg><fg 216;214;212><bg 137;134;134>▄</fg></bg><fg 113;104;99><bg 115;101;92>▄</fg></bg><fg 218;189;167><bg 214;184;160>▄</fg></bg><fg 149;124;106><bg 85;68;56>▄</fg></bg><fg 75;72;70><bg 57;53;53>▄</fg></bg><fg 61;59;61><bg 84;79;79>▄</fg></bg><fg 28;26;26><bg 61;59;60>▄</fg></bg><fg 23;21;21><bg 23;21;21>▄</fg></bg><fg 24;23;23><bg 18;17;17>▄</fg></bg><fg 37;35;36><bg 33;31;31>▄</fg></bg><fg 4;4;3><bg 10;9;9>▄</fg></bg><fg 23;13;9><bg 36;19;11>▄</fg></bg><fg 37;24;19><bg 84;47;26>▄</fg></bg><fg 40;35;37><bg 33;27;25>▄</fg></bg><fg 67;62;62><bg 58;53;54>▄</fg></bg>   <nop>
+                     <fg 119;118;118><bg 68;64;64>▄</fg></bg><fg 21;20;20><bg 96;95;101>▄</fg></bg><fg 91;65;51><bg 121;120;126>▄</fg></bg><fg 179;148;124><bg 120;119;124>▄</fg></bg><fg 94;76;73><bg 83;78;79>▄</fg></bg><fg 82;56;52><bg 81;62;58>▄</fg></bg><fg 64;48;44><bg 73;63;61>▄</fg></bg><fg 92;87;87><bg 123;119;120>▄</fg></bg><fg 168;166;168><bg 211;207;206>▄</fg></bg><fg 208;205;205><bg 142;137;135>▄</fg></bg><fg 95;91;91><bg 102;97;97>▄</fg></bg><fg 73;65;61><bg 63;56;53>▄</fg></bg><fg 103;89;79><bg 46;39;37>▄</fg></bg><fg 35;31;30><bg 98;67;62>▄</fg></bg><fg 46;40;40><bg 98;83;84>▄</fg></bg><fg 38;34;32><bg 88;53;41>▄</fg></bg><fg 43;39;38><bg 39;28;26>▄</fg></bg><fg 27;25;25><bg 45;43;43>▄</fg></bg><fg 18;17;16><bg 17;16;16>▄</fg></bg><fg 27;25;24><bg 17;16;15>▄</fg></bg><fg 23;22;23><bg 25;24;25>▄</fg></bg><fg 14;12;11><bg 47;39;35>▄</fg></bg><fg 8;6;5><bg 13;9;9>▄</fg></bg><fg 23;17;14><bg 22;17;15>▄</fg></bg><fg 55;50;51><bg 49;45;45>▄</fg></bg><fg 152;148;148><bg 102;96;95>▄</fg></bg>  <nop>
+                    <fg 190;188;187>▄</fg><fg 68;64;66><bg 95;92;96>▄</fg></bg>   <fg 100;93;91><bg 107;90;78>▄</fg></bg><fg 44;39;38><bg 68;63;63>▄</fg></bg><fg 78;74;73><bg 128;122;122>▄</fg></bg><fg 168;163;163><bg 160;154;153>▄</fg></bg><fg 168;163;161><bg 96;91;90>▄</fg></bg><fg 86;82;81><bg 54;51;50>▄</fg></bg><fg 60;56;54><bg 65;61;59>▄</fg></bg><fg 51;41;37><bg 66;59;56>▄</fg></bg><fg 71;57;57><bg 80;71;69>▄</fg></bg><fg 145;119;120><bg 89;80;80>▄</fg></bg><fg 79;38;27><bg 96;88;90>▄</fg></bg><fg 89;50;39><bg 65;58;57>▄</fg></bg><fg 86;68;67><bg 45;37;33>▄</fg></bg><fg 33;31;30><bg 22;20;20>▄</fg></bg><fg 15;14;13><bg 15;14;13>▄</fg></bg><fg 14;13;13><bg 13;12;12>▄</fg></bg><fg 21;20;20><bg 20;19;19>▄</fg></bg><fg 21;17;16><bg 43;40;41>▄</fg></bg><fg 100;75;66><bg 91;68;54>▄</fg></bg><fg 43;30;23><bg 21;14;11>▄</fg></bg><fg 56;52;52><bg 66;60;61>▄</fg></bg><fg 79;74;75><bg 71;67;67>▄</fg></bg><fg 100;97;95>▄</fg> <nop>
+                        <fg 178;175;175>▄</fg><fg 116;110;111><bg 230;222;218>▄</fg></bg><fg 131;123;123><bg 152;144;141>▄</fg></bg><fg 147;140;139><bg 131;124;123>▄</fg></bg><fg 111;105;104><bg 85;79;79>▄</fg></bg><fg 65;60;59><bg 66;57;54>▄</fg></bg><fg 37;33;32><bg 47;34;29>▄</fg></bg><fg 40;35;35><bg 32;26;25>▄</fg></bg><fg 73;69;66><bg 47;41;39>▄</fg></bg><fg 71;64;62><bg 54;49;46>▄</fg></bg><fg 60;54;53><bg 48;43;42>▄</fg></bg><fg 41;35;33><bg 17;17;15>▄</fg></bg><fg 28;24;22><bg 27;25;24>▄</fg></bg><fg 33;30;29><bg 41;38;37>▄</fg></bg><fg 50;39;33><bg 129;98;74>▄</fg></bg><fg 28;22;20><bg 86;61;46>▄</fg></bg><fg 14;14;14><bg 47;45;44>▄</fg></bg><bg 82;81;83>▀</bg><bg 100;99;103>▀</bg><bg 81;77;79>▀</bg><bg 46;30;25>▀</bg><fg 64;58;58><bg 53;48;51>▄</fg></bg><fg 69;64;64><bg 64;59;60>▄</fg></bg><fg 68;64;65><bg 66;62;62>▄</fg></bg><fg 132;130;128><bg 96;92;91>▄</fg></bg>
+                      <fg 144;141;140>▄</fg><fg 151;143;141><bg 98;87;83>▄</fg></bg><fg 156;146;143><bg 82;73;71>▄</fg></bg><fg 137;128;125><bg 89;78;75>▄</fg></bg><fg 128;119;116><bg 99;88;86>▄</fg></bg><fg 88;81;80><bg 107;97;96>▄</fg></bg><fg 97;88;86><bg 125;103;93>▄</fg></bg><fg 80;60;50><bg 149;115;94>▄</fg></bg><fg 85;55;37><bg 127;84;57>▄</fg></bg><fg 44;35;31><bg 72;52;41>▄</fg></bg><fg 42;35;32><bg 50;37;30>▄</fg></bg><fg 54;45;40><bg 110;84;66>▄</fg></bg><fg 38;31;28><bg 104;76;59>▄</fg></bg><fg 20;18;17><bg 101;78;63>▄</fg></bg><fg 23;20;19><bg 128;99;77>▄</fg></bg><fg 73;58;49><bg 161;122;93>▄</fg></bg><fg 195;156;124><bg 165;123;89>▄</fg></bg><fg 114;88;68><bg 43;33;28>▄</fg></bg><fg 46;43;41><bg 98;92;88>▄</fg></bg>    <fg 72;68;73><bg 102;99;103>▄</fg></bg><fg 59;54;54><bg 66;61;61>▄</fg></bg><fg 67;63;64><bg 58;54;55>▄</fg></bg><fg 72;67;66><bg 119;116;115>▄</fg></bg>
+                     <fg 127;124;124><bg 83;78;79>▄</fg></bg><fg 64;57;56><bg 43;36;37>▄</fg></bg><fg 53;46;46><bg 60;55;56>▄</fg></bg><fg 47;40;40><bg 74;69;71>▄</fg></bg><fg 47;38;37><bg 42;35;35>▄</fg></bg><fg 53;42;41><bg 33;26;26>▄</fg></bg><fg 92;78;74><bg 58;49;47>▄</fg></bg><fg 125;101;87><bg 159;132;116>▄</fg></bg><fg 149;118;98><bg 143;117;102>▄</fg></bg><fg 114;78;54><bg 93;64;47>▄</fg></bg><fg 75;49;34><bg 53;35;26>▄</fg></bg><fg 57;41;31><bg 68;49;38>▄</fg></bg><fg 115;87;67><bg 81;59;44>▄</fg></bg><fg 124;95;74><bg 90;64;47>▄</fg></bg><fg 147;113;87><bg 161;128;104>▄</fg></bg><fg 163;119;87><bg 164;125;95>▄</fg></bg><fg 162;122;89><bg 109;82;63>▄</fg></bg><fg 63;48;38><bg 30;26;26>▄</fg></bg><fg 30;26;26><bg 99;93;89>▄</fg></bg><fg 202;192;184><bg 248;243;234>▄</fg></bg>     <bg 63;59;62>▀</bg><bg 57;52;52>▀</bg> <nop>
+                     <bg 120;116;115>▀</bg><fg 30;26;27><bg 50;45;45>▄</fg></bg><fg 24;21;21><bg 27;23;24>▄</fg></bg><fg 9;9;8><bg 39;34;35>▄</fg></bg><fg 26;21;20><bg 42;38;39>▄</fg></bg><fg 30;24;24><bg 34;28;27>▄</fg></bg><fg 77;63;59><bg 138;120;113>▄</fg></bg><fg 156;133;120><bg 160;140;129>▄</fg></bg><fg 126;104;91><bg 107;88;77>▄</fg></bg><fg 74;56;46><bg 72;55;46>▄</fg></bg><fg 37;27;23><bg 40;29;25>▄</fg></bg><fg 48;34;27><bg 39;30;24>▄</fg></bg><fg 59;42;32><bg 35;28;25>▄</fg></bg><fg 117;92;74><bg 115;89;71>▄</fg></bg><fg 160;130;105><bg 89;69;54>▄</fg></bg><fg 117;86;64><bg 40;35;34>▄</fg></bg><fg 36;29;24><bg 87;82;81>▄</fg></bg><fg 43;39;38><bg 220;216;212>▄</fg></bg><fg 223;217;213><bg 241;232;224>▄</fg></bg><fg 240;230;221><bg 216;207;201>▄</fg></bg>        <nop>
+                      <bg 124;113;110>▀</bg><fg 46;42;43><bg 123;116;116>▄</fg></bg><fg 35;30;31><bg 84;76;76>▄</fg></bg><fg 58;50;47><bg 99;88;86>▄</fg></bg><fg 108;90;83><bg 129;114;109>▄</fg></bg><fg 137;120;113><bg 138;123;116>▄</fg></bg><fg 127;110;100><bg 110;96;90>▄</fg></bg><fg 92;76;69><bg 67;57;53>▄</fg></bg><fg 54;44;40><bg 35;28;26>▄</fg></bg><fg 26;20;17><bg 58;47;42>▄</fg></bg><fg 28;23;22><bg 83;68;61>▄</fg></bg><fg 49;42;38><bg 157;140;127>▄</fg></bg><fg 156;137;122><bg 196;178;163>▄</fg></bg><fg 176;163;154><bg 235;220;207>▄</fg></bg><fg 218;208;202><bg 251;245;236>▄</fg></bg><fg 246;241;235><bg 247;239;231>▄</fg></bg><fg 249;243;238><bg 236;227;220>▄</fg></bg><fg 227;212;200><bg 237;225;216>▄</fg></bg><fg 175;170;168><bg 177;171;170>▄</fg></bg>        <nop>
+<u>Děkuji za pozornost!</u>    <bg 135;128;129>▀</bg><bg 93;83;82>▀</bg><fg 94;83;82><bg 187;179;176>▄</fg></bg><fg 100;86;83><bg 172;158;150>▄</fg></bg><fg 115;100;96><bg 163;147;136>▄</fg></bg><fg 101;88;82><bg 150;132;117>▄</fg></bg><fg 103;84;75><bg 130;110;96>▄</fg></bg><fg 132;112;99><bg 147;129;115>▄</fg></bg><fg 151;134;120><bg 167;151;138>▄</fg></bg><fg 182;166;154><bg 195;178;165>▄</fg></bg><fg 215;197;183><bg 223;207;194>▄</fg></bg><fg 237;222;209><bg 224;210;200>▄</fg></bg><fg 245;232;222><bg 238;225;216>▄</fg></bg><fg 247;239;232><bg 231;219;209>▄</fg></bg><fg 228;212;198><bg 196;179;164>▄</fg></bg><fg 248;242;236><bg 232;223;217>▄</fg></bg><fg 223;214;209><bg 230;220;213>▄</fg></bg><fg 86;82;82><bg 203;196;193>▄</fg></bg><fg 132;128;124><bg 36;33;34>▄</fg></bg><fg 131;129;128>▄</fg>     <nop>
+                         <fg 122;119;118>▄</fg><fg 208;196;190><bg 205;192;185>▄</fg></bg><fg 180;166;155><bg 145;134;127>▄</fg></bg><fg 158;144;133><bg 142;131;124>▄</fg></bg><fg 148;133;120><bg 145;131;122>▄</fg></bg><fg 133;117;107><bg 132;119;111>▄</fg></bg><fg 166;151;140><bg 160;147;138>▄</fg></bg><fg 193;177;165><bg 205;190;180>▄</fg></bg><fg 219;203;189><bg 222;207;196>▄</fg></bg><fg 236;222;211><bg 232;218;207>▄</fg></bg><fg 238;225;215><bg 234;222;212>▄</fg></bg><fg 233;221;211><bg 235;222;213>▄</fg></bg><fg 217;202;192><bg 224;207;193>▄</fg></bg><fg 194;179;167><bg 194;182;174>▄</fg></bg><fg 214;204;197><bg 220;209;199>▄</fg></bg><fg 230;221;214><bg 240;231;224>▄</fg></bg><fg 238;235;233><bg 234;229;226>▄</fg></bg><fg 33;31;32><bg 38;36;37>▄</fg></bg><fg 69;66;65><bg 33;30;31>▄</fg></bg>     <nop>
+                         <fg 141;136;134><bg 180;172;168>▄</fg></bg><fg 207;194;183><bg 207;193;183>▄</fg></bg><fg 161;150;142><bg 188;174;165>▄</fg></bg><fg 135;123;117><bg 171;160;151>▄</fg></bg><fg 161;149;141><bg 155;144;137>▄</fg></bg><fg 172;158;148><bg 184;171;162>▄</fg></bg><fg 193;179;169><bg 195;182;172>▄</fg></bg><fg 214;200;190><bg 213;200;191>▄</fg></bg><fg 216;204;194><bg 215;202;193>▄</fg></bg><fg 231;219;210><bg 214;200;189>▄</fg></bg><fg 231;219;210><bg 217;201;189>▄</fg></bg><fg 225;211;200><bg 223;208;196>▄</fg></bg><fg 236;221;208><bg 239;228;219>▄</fg></bg><fg 241;229;219><bg 244;233;224>▄</fg></bg><fg 237;225;217><bg 239;228;220>▄</fg></bg><fg 249;241;234><bg 244;233;224>▄</fg></bg><fg 207;201;198><bg 202;195;192>▄</fg></bg><fg 34;31;32><bg 40;37;38>▄</fg></bg><fg 29;26;27><bg 28;25;27>▄</fg></bg><fg 125;123;122><bg 128;125;124>▄</fg></bg>    <nop>
+   Nějaké otázky?   <fg 169;166;166>▄</fg><fg 225;218;213>▄</fg><fg 172;167;165>▄</fg><fg 103;100;99>▄</fg><fg 132;128;126>▄</fg><fg 224;213;205><bg 227;216;207>▄</fg></bg><fg 209;195;185><bg 217;204;193>▄</fg></bg><fg 194;180;170><bg 199;185;176>▄</fg></bg><fg 173;158;147><bg 193;180;171>▄</fg></bg><fg 154;142;135><bg 173;159;150>▄</fg></bg><fg 195;183;175><bg 162;150;142>▄</fg></bg><fg 208;195;186><bg 183;170;161>▄</fg></bg><fg 208;194;184><bg 183;167;156>▄</fg></bg><fg 217;203;192><bg 193;178;166>▄</fg></bg><fg 222;209;199><bg 211;196;185>▄</fg></bg><fg 208;193;182><bg 226;213;201>▄</fg></bg><fg 230;217;206><bg 245;234;225>▄</fg></bg><fg 245;236;227><bg 242;231;221>▄</fg></bg><fg 247;238;229><bg 232;219;209>▄</fg></bg><fg 235;223;214><bg 228;214;203>▄</fg></bg><fg 230;218;209><bg 225;213;204>▄</fg></bg><fg 211;202;197><bg 189;180;177>▄</fg></bg><fg 36;33;34><bg 28;25;25>▄</fg></bg><fg 29;25;27><bg 38;35;35>▄</fg></bg><bg 167;165;164>▀</bg>    <nop>
+                     <bg 97;95;94>▀</bg><bg 207;200;196>▀</bg><fg 239;229;220><bg 93;91;89>▄</fg></bg><fg 213;201;194><bg 150;143;140>▄</fg></bg><fg 229;217;208><bg 217;206;200>▄</fg></bg><fg 225;213;203><bg 222;210;201>▄</fg></bg><fg 208;194;185><bg 220;207;198>▄</fg></bg><fg 202;189;180><bg 194;182;173>▄</fg></bg><fg 199;185;175><bg 205;193;185>▄</fg></bg><fg 193;178;167><bg 209;196;187>▄</fg></bg><fg 178;162;151><bg 208;195;185>▄</fg></bg><fg 201;186;173><bg 202;189;179>▄</fg></bg><fg 219;205;193><bg 207;194;185>▄</fg></bg><fg 229;216;206><bg 221;209;200>▄</fg></bg><fg 237;225;216><bg 213;201;192>▄</fg></bg><fg 233;221;210><bg 214;200;190>▄</fg></bg><fg 226;212;201><bg 215;201;191>▄</fg></bg><fg 215;201;191><bg 217;203;193>▄</fg></bg><fg 222;208;198><bg 225;212;202>▄</fg></bg><fg 224;211;202><bg 225;213;204>▄</fg></bg><fg 126;119;117><bg 85;81;81>▄</fg></bg><fg 19;17;17><bg 38;35;33>▄</fg></bg><bg 100;96;93>▀</bg>     <nop>
+                        <bg 31;32;32>▀</bg><fg 126;121;119><bg 43;42;42>▄</fg></bg><fg 222;209;201><bg 205;195;190>▄</fg></bg><fg 203;188;179><bg 215;200;189>▄</fg></bg><fg 152;142;136><bg 172;156;146>▄</fg></bg><fg 204;193;185><bg 214;202;193>▄</fg></bg><fg 199;188;180><bg 199;186;178>▄</fg></bg><fg 189;177;168><bg 194;180;171>▄</fg></bg><fg 172;160;152><bg 204;191;181>▄</fg></bg><fg 181;169;161><bg 186;173;165>▄</fg></bg><fg 203;190;181><bg 203;191;183>▄</fg></bg><fg 204;190;181><bg 205;192;182>▄</fg></bg><fg 209;196;186><bg 205;192;182>▄</fg></bg><fg 212;200;190><bg 216;203;193>▄</fg></bg><fg 218;205;196><bg 228;216;206>▄</fg></bg><fg 228;216;207><bg 224;212;203>▄</fg></bg><fg 218;207;200><bg 189;180;175>▄</fg></bg><fg 64;60;60><bg 42;38;38>▄</fg></bg><fg 57;54;52><bg 63;61;60>▄</fg></bg>      <nop>
+                         <bg 35;35;35>▀</bg><fg 75;72;70><bg 52;50;48>▄</fg></bg><fg 185;169;160><bg 176;160;150>▄</fg></bg><fg 203;189;180><bg 174;160;152>▄</fg></bg><fg 219;205;195><bg 204;190;181>▄</fg></bg><fg 216;202;192><bg 201;188;179>▄</fg></bg><fg 215;201;191><bg 207;193;183>▄</fg></bg><fg 218;205;196><bg 208;194;184>▄</fg></bg><fg 199;187;179><bg 200;187;178>▄</fg></bg><fg 197;185;177><bg 194;181;172>▄</fg></bg><fg 195;183;175><bg 191;178;168>▄</fg></bg><fg 207;195;185><bg 205;190;179>▄</fg></bg><fg 222;209;199><bg 218;204;193>▄</fg></bg><fg 226;213;203><bg 220;206;195>▄</fg></bg><fg 211;200;192><bg 198;188;182>▄</fg></bg><fg 114;108;107><bg 62;58;58>▄</fg></bg><fg 28;26;25><bg 41;38;37>▄</fg></bg>       <nop>
+                          <fg 119;103;89><bg 148;126;110>▄</fg></bg><fg 173;155;141><bg 147;123;105>▄</fg></bg><fg 168;155;146><bg 162;146;137>▄</fg></bg><fg 174;162;155><bg 174;156;143>▄</fg></bg><fg 189;176;168><bg 173;159;150>▄</fg></bg><fg 180;169;162><bg 170;158;151>▄</fg></bg><fg 193;179;170><bg 170;158;152>▄</fg></bg><fg 190;176;166><bg 182;170;164>▄</fg></bg><fg 188;175;165><bg 168;154;145>▄</fg></bg><fg 188;173;163><bg 168;155;147>▄</fg></bg><fg 193;178;168><bg 183;170;163>▄</fg></bg><fg 202;188;178><bg 188;176;169>▄</fg></bg><fg 211;198;188><bg 197;185;178>▄</fg></bg><fg 174;165;161><bg 124;117;115>▄</fg></bg><fg 32;29;29><bg 50;45;43>▄</fg></bg><fg 47;43;41><bg 75;71;67>▄</fg></bg>       <nop>
+                          <bg 97;81;70>▀</bg><fg 97;80;68><bg 41;40;39>▄</fg></bg><fg 120;109;102><bg 81;73;68>▄</fg></bg><fg 205;188;176><bg 204;189;177>▄</fg></bg><fg 188;171;160><bg 188;166;151>▄</fg></bg><fg 89;82;77><bg 88;82;78>▄</fg></bg><fg 30;30;30><bg 29;29;29>▄</fg></bg><fg 51;49;48><bg 28;28;28>▄</fg></bg><fg 47;45;44><bg 26;26;26>▄</fg></bg><fg 52;50;48><bg 25;25;25>▄</fg></bg><fg 56;53;52><bg 27;27;27>▄</fg></bg><fg 81;77;75><bg 39;37;37>▄</fg></bg><fg 178;167;161><bg 148;134;126>▄</fg></bg><fg 199;188;180><bg 177;168;163>▄</fg></bg><fg 197;187;179><bg 142;132;128>▄</fg></bg><bg 145;139;137>▀</bg>       <nop>
+                            <fg 51;47;44><bg 69;63;60>▄</fg></bg><fg 191;177;166><bg 181;166;154>▄</fg></bg><fg 197;181;169><bg 184;168;157>▄</fg></bg><fg 95;81;70><bg 85;78;73>▄</fg></bg><bg 34;34;34>▀</bg><fg 33;33;33><bg 37;37;37>▄</fg></bg><fg 31;31;31><bg 35;35;35>▄</fg></bg><fg 27;27;27><bg 31;31;31>▄</fg></bg><fg 27;27;27><bg 27;27;27>▄</fg></bg><fg 75;68;63><bg 90;82;77>▄</fg></bg><fg 168;155;147><bg 160;140;128>▄</fg></bg><fg 155;141;135><bg 172;152;139>▄</fg></bg><fg 108;100;95><bg 101;95;91>▄</fg></bg>        <nop>
+                           <fg 167;147;129>▄</fg><fg 159;146;136><bg 191;169;153>▄</fg></bg><fg 192;175;162><bg 204;189;177>▄</fg></bg><fg 196;180;169><bg 186;169;158>▄</fg></bg><bg 54;53;52>▀</bg>   <bg 35;35;35>▀</bg><fg 28;28;28><bg 29;29;29>▄</fg></bg><fg 100;92;86><bg 105;97;90>▄</fg></bg><fg 177;162;150><bg 192;175;163>▄</fg></bg><fg 198;179;166><bg 207;190;179>▄</fg></bg><fg 96;92;89><bg 147;136;129>▄</fg></bg>        <nop>
+                          <fg 129;119;112><bg 144;125;110>▄</fg></bg><fg 174;145;123><bg 164;137;115>▄</fg></bg><fg 191;169;151><bg 184;162;145>▄</fg></bg><fg 202;187;176><bg 185;165;152>▄</fg></bg><fg 127;113;104><bg 68;62;59>▄</fg></bg>     <bg 32;32;32>▀</bg><fg 119;111;105><bg 110;99;94>▄</fg></bg><fg 198;181;167><bg 172;146;127>▄</fg></bg><fg 201;184;171><bg 151;115;88>▄</fg></bg><fg 196;176;161><bg 188;167;153>▄</fg></bg><fg 92;80;71>▄</fg>       <nop>
+                          <fg 127;112;101><bg 51;48;47>▄</fg></bg><fg 166;139;117><bg 77;68;62>▄</fg></bg><fg 161;139;125><bg 49;46;45>▄</fg></bg><bg 128;100;83>▀</bg>       <bg 77;68;63>▀</bg><fg 152;130;116><bg 86;74;66>▄</fg></bg><fg 169;152;139><bg 140;126;119>▄</fg></bg><fg 161;136;119><bg 132;114;99>▄</fg></bg><bg 72;69;67>▀</bg>       <nop>
+                                       <bg 60;58;59>▀</bg><bg 65;63;63>▀</bg>        <nop>

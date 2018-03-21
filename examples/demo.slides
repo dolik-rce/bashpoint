@@ -1,0 +1,146 @@
+<lfooter Bashpoint intro>
+<rfooter Jan Dolinar>
+<slide center center middle About>
+
+Bashpoint is simple presentation tool for text interface.
+
+It runs in terminal or in console and is driven by keyboard only.
+
+The presentations are writen in simple HTML-like markup language.
+
+(Press space to continue...)
+
+<slide left center middle Key bindings>
+<b><u><title></u></b>
+
+To browse through this presentation, you can use following keys:
+
+  * Step forward:   Space, Enter, Right, Down, n, l, j
+  * Step backward:  Backspace, p, h, k
+  * Goto begining:  Home
+  * Goto end:       End
+  * Next slide:     PageDown
+  * Previous slide: PageUp
+  * Exit:           q, x
+
+<slide left center middle Slides>
+<b><u><title></u></b>
+
+Each slide begins with tag &lt;slide t_align h_align v_align title [...]&gt;,
+where:
+
+  * <b>t_align</b> is text alignment (left, center, right)
+
+  * <b>h_align</b> is slide horizontal alignment (left, center, right)
+
+  * <b>v_align</b> is slide vertical alignment (top, middle, bottom)
+
+  * <b>title</b> is one or more words, that will be displayed
+    in the title area of the terminal window (if ran from terminal)
+
+Anything that follows &lt;slide&gt; upto next &lt;slide&gt; is considered
+to be content of the slide.
+
+Any text before first &lt;slide&gt; is ignored.
+
+<slide left center middle Footer>
+<b><u><title></u></b>
+
+Footer with progress bar is displayed at the bottom of the pressentation.
+The texts in left and right corner of the footer can be set
+via &lt;lfooter&gt; and &lt;lfooter&gt; respectivelly.
+
+<i>Example:</i>
+
+    This presentation uses
+        &lt;lfooter Bashpoint intro&gt;
+        &lt;rfooter Jan Dolinar&gt;
+
+<slide left center middle Text styles>
+<b><u><title></u></b>
+
+Multiple text styles are supported:
+
+  * <b>&lt;bold&gt;Bold text&lt;/bold&gt;</b> (alias: &lt;b&gt;)
+  * <d>&lt;dim&gt;Dim text&lt;/dim&gt;</d> (alias: &lt;d&gt;)
+  * <i>&lt;italic&gt;Italic text&lt;/italic&gt;</i> (aliases: &lt;i&gt;, &lt;slanted&gt;)
+  * <u>&lt;underline&gt;Underlined text&lt;/underline&gt;</u> (aliases: &lt;u&gt;, &lt;underscore&gt;)
+  * <bl>&lt;blink&gt;Blinking text&lt;/blink&gt;</bl> (alias: &lt;bl&gt;)
+  * <o>&lt;overline&gt;Overlined text&lt;/overline&gt;</o> (alias: &lt;o&gt;)
+  * <inv>&lt;invert&gt;Inverted text&lt;/invert&gt;</inv> (aliases: &lt;inv&gt;, &lt;inverse&gt;)
+  * <h>&lt;hidden&gt;Hidden text&lt;/hidden&gt;</h> (aliases: &lt;h&gt;, &lt;invisible&gt;)
+  * <s>&lt;strike&gt;Striked text&lt;/strike&gt;</s> (aliases: &lt;s&gt;, &lt;strikethrough&gt;)
+
+Or any combination of these.
+Unlike in HTML, the tag pairs are allowed to overlap.
+
+  <i>E.g.:</i> <b>&lt;b&gt;This is bold <u>&lt;u&gt;and&lt;/b&gt;</b> underlined.&lt;/u&gt;</u>
+
+Note: Some terminals may not support every possible style
+      but the text should usually degrade gracefully (i.e. still be readable).
+
+<slide left center middle Colors>
+<b><u><title></u></b>
+
+Text and background can be set to any of the standard 16 colors,
+using &lt;color&gt; (or &lt;c&gt; or &lt;fg&gt;) and &lt;background&gt; (or &lt;bg&gt;).
+To reset them to default value, use &lt;/fg&gt; and &lt;/bg&gt; respectivelly.
+
+    <i>Foreground:</i>
+
+        <fg black>&lt;fg black&gt;,<fg red>&lt;fg red&gt;,<fg green>&lt;fg green&gt;,<fg yellow>&lt;fg yellow&gt;,</fg>&lt;/fg&gt;
+        <fg blue>&lt;fg blue&gt;,<fg magenta>&lt;fg magenta&gt;,<fg cyan>&lt;fg cyan&gt;,<fg lightgray>&lt;fg lightgray&gt;,</fg>&lt;/fg&gt;
+        <fg darkgray>&lt;fg darkgray&gt;,<fg lightred>&lt;fg lightred&gt;,<fg lightgreen>&lt;fg lightgreen&gt;,<fg lightyellow>&lt;fg lightyellow&gt;,</fg>&lt;/fg&gt;
+        <fg lightblue>&lt;fg lightblue&gt;,<fg lightmagenta>&lt;fg lightmagenta&gt;,<fg lightcyan>&lt;fg lightcyan&gt;,<fg white>&lt;fg white&gt;,</fg>&lt;/fg&gt;
+
+    <i>Background:</i>
+
+        <bg black>&lt;bg black&gt;,<bg red>&lt;bg red&gt;,<bg green>&lt;bg green&gt;,<bg yellow>&lt;bg yellow&gt;,</bg>&lt;/bg&gt;
+        <bg blue>&lt;bg blue&gt;,<bg magenta>&lt;bg magenta&gt;,<bg cyan>&lt;bg cyan&gt;,<bg lightgray>&lt;bg lightgray&gt;,</bg>&lt;/bg&gt;
+        <bg darkgray>&lt;bg darkgray&gt;,<bg lightred>&lt;bg lightred&gt;,<bg lightgreen>&lt;bg lightgreen&gt;,<bg lightyellow>&lt;bg lightyellow&gt;,</bg>&lt;/bg&gt;
+        <bg lightblue>&lt;bg lightblue&gt;,<bg lightmagenta>&lt;bg lightmagenta&gt;,<bg lightcyan>&lt;bg lightcyan&gt;,<bg white>&lt;bg white&gt;,</bg>&lt;/bg&gt;
+
+24bit colors are supported by bashpoint as well:
+
+        <bg 248;12;18>T<bg 238;17;0>a<bg 255;51;17>s<bg 255;68;34>t<bg 255;102;68>e<bg 255;153;51><bg 254;174;45> <bg 204;187;51>a<bg 208;195;16> <bg 170;204;34><bg 105;208;37>r<bg 34;204;170>a<bg 18;189;185>i<bg 17;170;187>n<bg 68;68;221>b<bg 51;17;187>o<bg 59;12;189>w<bg 68;34;153>!</bg>
+
+Note: Unlike in HTML, colors in bashpoint (and bash) don't really behave as tags.
+      In reality, they are representing a state, so once you use another color,
+      previous state is forgotten.
+
+<slide left center middle Commands>
+<b><u><title></u></b>
+
+It is sometimes usefull to run a command and display its output.
+For this purpose, there is a few tags to help with that:
+
+  * <b>&lt;run&gt;</b> Runs a shell command
+  * <b>&lt;cmd&gt;</b> Runs a shell command and insert it into the slide
+  * <b>&lt;ans&gt;</b> Inserts the output of the last &lt;cmd&gt; or &lt;run&gt;
+
+All the commands are executed in the same environment as the presentation.
+That makes it possible to make them interact, e.g. read the state of
+the presentation or access environment variables set in previous commands.
+
+<i>Examples:</i>
+
+  Run: <run echo $PWD>
+       <ans>
+
+  Cmd: <cmd echo $PWD>
+       <ans>
+
+<slide left center middle Miscellaneous>
+<b><u><title></u></b>
+
+Few more usefull tags:
+
+    * <b>&lt;title&gt;</b> inserts title of current slide
+    * <b>&lt;env X&gt;</b> inserts value of environment variable X
+    * <b>&lt;pause&gt;</b> divides slide into separatelly revealed parts
+
+<i>Examples:</i>
+
+    * Press space<pause> to continue.
+    * This slide is called "<title>".
+    * This presentation was executed by user "<env USER>".
