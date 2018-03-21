@@ -11,8 +11,9 @@ Demo:
 -----
 
 To see what bashpoint can do, just run
-
-        ./bashpoint.sh examples/demo.slides
+```bash
+./bashpoint.sh examples/demo.slides
+```
 
 In case you are too lazy to clone this repo, here is a picture:
 
