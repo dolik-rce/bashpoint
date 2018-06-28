@@ -9,8 +9,6 @@ usage() {
 
 declare -a SLIDES TITLES PAGES
 declare -A STYLES COLORS
-declare -i COLS
-declare -i ROWS
 declare -i PAGE=0
 declare -i FG=0 BG=10
 declare DEBUG=""
@@ -39,14 +37,8 @@ init() {
     set -e
     set -u
     set -o pipefail
-
-    if [ -z "$(type -p tput)" ]; then
-        echo "ERROR: tput not found!"
-        exit 1
-    fi
-
-    COLS=$(tput cols)
-    ROWS=$(tput lines)
+    shopt -s checkwinsize
+    (:;:) # somehow, this gives the shell time to export the COLUMNS and LINES variables
 
     init_color 30 black
     init_color 31 red
@@ -185,11 +177,11 @@ align() {
         MAXLEN=$(( MAXLEN < LEN ? LEN : MAXLEN ))
     done <<<"$BARE"
     log "Slide $2 ($3) is $MAXLEN x $LINECOUNT"
-    if [ "$MAXLEN" -ge "$COLS" ]; then
+    if [ "$MAXLEN" -ge "$COLUMNS" ]; then
         echo >&2 "Slide $2 ($3) is too wide!"
         exit 1;
     fi
-    if [ "$LINECOUNT" -ge $((ROWS - 1)) ]; then
+    if [ "$LINECOUNT" -ge $((LINES - 1)) ]; then
         echo >&2 "Slide $2 ($3) is too high!"
         exit 1;
     fi
@@ -200,10 +192,10 @@ align() {
             # nothing to do
             ;;
         middle)
-            eval "printf '\n%.0s' {1..$(((ROWS - LINECOUNT)/2))}"
+            eval "printf '\n%.0s' {1..$(((LINES - LINECOUNT)/2))}"
             ;;
         bottom)
-            eval "printf '\n%.0s' {1..$((ROWS - LINECOUNT))}"
+            eval "printf '\n%.0s' {1..$((LINES - LINECOUNT))}"
             ;;
         *)
             echo >&2 "ERROR: unexpected vertical alignment value '$VALIGN'"
@@ -221,10 +213,10 @@ align() {
                 PAD=0
                 ;;
             center)
-                PAD=$(((COLS - MAXLEN)/2))
+                PAD=$(((COLUMNS - MAXLEN)/2))
                 ;;
             right)
-                PAD=$((COLS - MAXLEN))
+                PAD=$((COLUMNS - MAXLEN))
                 ;;
             *)
                 echo >&2 "ERROR: unexpected horizontal alignment value '$HALIGN'"
@@ -247,7 +239,7 @@ align() {
                 exit 2
                 ;;
         esac
-        log "cols=$COLS maxlen=$MAXLEN len=$LEN cols-maxlen=$((COLS-MAXLEN)) maxlen-len=$((MAXLEN-LEN)) pad=$PAD"
+        log "COLUMNS=$COLUMNS maxlen=$MAXLEN len=$LEN COLUMNS-maxlen=$((COLUMNS-MAXLEN)) maxlen-len=$((MAXLEN-LEN)) pad=$PAD"
         printf "%${PAD}s%s\n" "" "$LINE"
         CUR+=1
     done <<<"$1"
@@ -290,15 +282,19 @@ parser() {
 }
 
 display() {
-    tput clear
+    # clear
+    echo -e -n "\e[2J\e[H"
+    # set title
     echo -e -n "\e]2;${TITLES[$CUR]}\007"
+    # print slide content
     echo -n "${SLIDES[$CUR]}"
-    tput cup "$ROWS" 0
-    local -i PROGRESS_BAR=$(( COLS*CUR/LAST ))
+    # move cursor to the begining of last line
+    echo -e -n "\e[H\e[${LINES}B"
+    local -i PROGRESS_BAR=$(( COLUMNS*CUR/LAST ))
     local PROGRESS="${PAGES[$CUR]}/${PAGES[-1]}"
     local FOOTER
-    printf -v FOOTER "%s%$((COLS/2-${#PROGRESS}/2-${#LFOOTER}))s%s" "$LFOOTER" " " "$PROGRESS"
-    printf -v FOOTER "%s%$((COLS-${#FOOTER}-${#RFOOTER}))s%s" "$FOOTER" " " "$RFOOTER"
+    printf -v FOOTER "%s%$((COLUMNS/2-${#PROGRESS}/2-${#LFOOTER}))s%s" "$LFOOTER" " " "$PROGRESS"
+    printf -v FOOTER "%s%$((COLUMNS-${#FOOTER}-${#RFOOTER}))s%s" "$FOOTER" " " "$RFOOTER"
     echo -en "\e[48;5;242m${FOOTER:0:$PROGRESS_BAR}\e[49m${FOOTER:$PROGRESS_BAR}"
 }
 
@@ -334,7 +330,8 @@ run() {
     # unfortunately, there is no reliable way to know the state of the title
     # before the presentation started, so we just set it to something reasonable
     echo -e -n "\e]2;$USER@$(hostname):$PWD\007"
-    tput clear
+    # clear screen
+    echo -e -n "\e[2J\e[H"
 }
 
 load() {

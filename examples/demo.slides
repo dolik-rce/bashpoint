@@ -102,7 +102,7 @@ To reset them to default value, use &lt;/fg&gt; and &lt;/bg&gt; respectivelly.
 
 24bit colors are supported by bashpoint as well:
 
-        <bg 248;12;18>T<bg 238;17;0>a<bg 255;51;17>s<bg 255;68;34>t<bg 255;102;68>e<bg 255;153;51><bg 254;174;45> <bg 204;187;51>a<bg 208;195;16> <bg 170;204;34><bg 105;208;37>r<bg 34;204;170>a<bg 18;189;185>i<bg 17;170;187>n<bg 68;68;221>b<bg 51;17;187>o<bg 59;12;189>w<bg 68;34;153>!</bg>
+        <fg black><bg 248;12;18>T<bg 238;17;0>a<bg 255;51;17>s<bg 255;68;34>t<bg 255;102;68>e<bg 255;153;51><bg 254;174;45> <bg 204;187;51>a<bg 208;195;16> <bg 170;204;34><bg 105;208;37>r<bg 34;204;170>a<bg 18;189;185>i<bg 17;170;187>n<bg 68;68;221>b<bg 51;17;187>o<bg 59;12;189>w<bg 68;34;153>!</bg></fg>
 
 Note: Unlike in HTML, colors in bashpoint (and bash) don't really behave as tags.
       In reality, they are representing a state, so once you use another color,
